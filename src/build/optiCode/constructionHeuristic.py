@@ -1,35 +1,5 @@
 import numpy as np
-
-def nearestNeighbor(tt, stopsData):
-    route = []
-    for stop in stopsData.values():
-        if stop['StopType'] == "depot":
-            route.append(stop["StopName"])
-    
-    for i in range(len(stopsData)-1):
-        cleanedList = list([key,value] for key, value in tt[route[i]].items() if  key != route[i] and key not in route)
-        nextStop = min(cleanedList, key=lambda x: x[1])[0]
-        route.append(nextStop)
-    return route
-
-
-def randomZone(tt, stopsData):
-    z = list(stopsData.items())
-    z.sort(key=lambda x: (x[1]['StopType'], x[1]['ZoneID']))
-    route = [i[0] for i in z]
-    zoneList = []
-    counter = 0
-    for i in range(1, len(z)-1):
-        if z[i][1]['ZoneID'] != z[i+1][1]['ZoneID']:
-            zoneList.append(counter+1)
-            counter = 0
-        else:
-            counter += 1
-        
-        if i == (len(z)-2):
-            zoneList.append(counter+1)
-    
-    return route, zoneList
+from itertools import chain
 
 def nnZone(ttZone, zoneDictname):
     currentZone = 'depot'
@@ -45,5 +15,61 @@ def nnZone(ttZone, zoneDictname):
         routeZone.append(currentZone)
         zoneList.append(len(zoneDictname[currentZone]))
         routeList = routeList + zoneDictname[currentZone]
-    
+    return routeList, zoneList
+
+def find_in_list_of_list(mylist, char):
+    for sub_list in mylist:
+        if char in sub_list:
+            return (mylist.index(sub_list), sub_list.index(char))
+    raise ValueError("'{char}' is not in list".format(char = char))
+
+def backWardsNN(ttZone, zoneDictname, lastZone):
+    currentZone = lastZone
+    routeZone = [lastZone]
+    zoneList = []
+    newList = []
+    routeList = zoneDictname[lastZone]
+    for _i in range(1, len(zoneDictname)):
+        zoneList.insert(0,len(zoneDictname[currentZone])) 
+        ### Change ttZone[currentZone] to ttZone[variable][currentZone]
+        masterList = []
+        if _i < (len(zoneDictname)-1):
+            for _j in zoneDictname:
+                if _j not in routeZone and _j != 'depot':
+                    cleanedList = list([key,value] for key, value in ttZone[_j].items() if key != _j) #and key not in newList)
+                    cleanedList.sort(key = lambda x: x[1])
+                    idx, two = find_in_list_of_list(cleanedList, currentZone)
+                    masterList.append([_j, idx])
+            newList.append(currentZone)
+            ls = [i for i, x in enumerate(masterList) if x[1] == min(masterList, key=lambda x: x[1])[1]]   
+            currentLowestDist = 100000000000000
+            for _k in ls:
+                if ttZone[masterList[_k][0]][currentZone] < currentLowestDist:
+                    currentLowestDist = ttZone[masterList[_k][0]][currentZone]
+                    nextZone = masterList[_k][0]
+            currentZone = nextZone
+
+        else:
+            cleanedList = list([key, ttZone[key][currentZone]] for key in ttZone.keys() if key != currentZone and key not in routeZone)
+            currentZone = min(cleanedList, key=lambda x: x[1])[0]
+        routeZone.insert(0,currentZone) 
+        routeList = zoneDictname[currentZone] + routeList
+    return routeList, zoneList
+
+def forwardNN(ttZone, zoneDictname, firstZone):
+    routeZone = ['depot', firstZone]
+    routeList = zoneDictname['depot']
+    currentZone = firstZone
+    zoneList = []
+    routeList = zoneDictname['depot'] + zoneDictname[firstZone]
+    for _i in range(1, len(zoneDictname)-1):
+        zoneList.append(len(zoneDictname[currentZone])) 
+        cleanedList = list([key,value] for key, value in ttZone[currentZone].items() if  key != ttZone and key not in routeZone)
+        #cleanedList = list([key, ttZone[key][currentZone]] for key in ttZone.keys() if key != currentZone and key not in routeZone)
+        currentZone = min(cleanedList, key=lambda x: x[1])[0]
+        routeZone.append(currentZone) 
+        routeList = routeList + zoneDictname[currentZone]
+    zoneList.append(len(zoneDictname[currentZone]))
+    routeList[1:len(routeList)] = routeList[1:len(routeList)][::-1]
+    zoneList = zoneList[::-1]
     return routeList, zoneList

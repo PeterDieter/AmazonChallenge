@@ -1,15 +1,35 @@
 import numpy as np
 import os 
 import json
-from optiCode.KPIFunctions import getArrivalTimes
-from optiCode.KPIFunctions import neighborNextDeviation
-
+import geopy.distance
 
 def findZoneClosestStop(stop, ttMatrix, route):
     cleanedList = list([key,value] for key, value in ttMatrix[stop].items() if key != stop and isinstance(route["stops"][key]["zone_id"], str))
     cleanedList.sort(key=lambda x: x[1])
     closestStop = cleanedList[0][0]
     return closestStop
+
+def centralityMeasure(zoneTT, zoneListName):
+    centrality, distToDepot, zoneList = [], [], []
+    for fromZone in zoneListName:
+        if fromZone != 'depot':
+            value = 0
+            for toZone in zoneListName:
+                if toZone != 'depot':
+                    #value += zoneTT[fromZone][toZone]
+                    value += zoneTT[toZone][fromZone]
+            zoneList.append(fromZone)
+            distToDepot.append(zoneTT['depot'][fromZone])
+            centrality.append(value)
+    
+    newList = -np.array(centrality) + np.array(distToDepot)
+    centrality = np.argsort(np.argsort(-np.array(centrality)))
+    distToDepot = np.argsort(np.argsort(np.array(distToDepot))) 
+
+    combined = centrality + distToDepot
+
+    #centrality.sort(key = lambda x: x[1], reverse=True)
+    return zoneList[np.argmin(combined)]
 
 def zoneDistanceMatrix(ttMatrix, stopsData, zoneListName):
     distMat = {}
@@ -25,9 +45,10 @@ def zoneDistanceMatrix(ttMatrix, stopsData, zoneListName):
                 for fromStop in stopsFromZone:
                     for toStop in stopsToZone:
                         totalDist += ttMatrix[fromStop][toStop]
-                distMat[_fromZone][_toZone] = int(totalDist/(len(stopsFromZone)*len(stopsToZone)))
+                distMat[_fromZone][_toZone] = totalDist/(len(stopsFromZone)*len(stopsToZone))
             
     return distMat
+
 
 def zoneDistanceMatrixMinMin(ttMatrix, stopsData, zoneListName):
     distMat = {}
@@ -37,7 +58,6 @@ def zoneDistanceMatrixMinMin(ttMatrix, stopsData, zoneListName):
             if _fromZone == _toZone:
                 distMat[_fromZone][_toZone] = 0
             else:
-                totalDist = 0
                 stopsFromZone = [v["StopName"] for v in stopsData.values() if _fromZone in v.values()]
                 stopsToZone = [v["StopName"] for v in stopsData.values() if _toZone in v.values()]
                 dist = 10000000000000000
@@ -49,40 +69,14 @@ def zoneDistanceMatrixMinMin(ttMatrix, stopsData, zoneListName):
             
     return distMat
 
-def geoAttributes(stopsData):
-    minlng = min(stopsData.values(), key=lambda v:v['lng'] if v['StopType'] != 'depot' else float('inf'))['lng']
-    maxlng = max(stopsData.values(), key=lambda v:v['lng'] if v['StopType'] != 'depot' else float('-inf'))['lng']
-    minlat = min(stopsData.values(), key=lambda v:v['lat'] if v['StopType'] != 'depot' else float('inf'))['lat']
-    maxlat = max(stopsData.values(), key=lambda v:v['lat'] if v['StopType'] != 'depot' else float('-inf'))['lat']
-    return ((maxlng-minlng) * (maxlat - minlat))
-        
-def createMLdata(route,stopsData, tt, startTime, startDate, zoneList):
-    stopsData = getArrivalTimes(tt, startTime, startDate, route, stopsData)
-    deviations = np.array(neighborNextDeviation(tt, route))
-    slackBeginningTW = np.array(list(d['slackBeginningTW'] for d in stopsData.values()))
-    slackEndTW = np.array(list(d['slackEndTW'] for d in stopsData.values()))  
-    res = [
-        len(stopsData),
-        #(total_duration_SAZone - total_duration_StartSeq) / total_duration_StartSeq,
-        np.nanmin(slackBeginningTW),
-        np.nanmedian(slackBeginningTW),
-        np.nanquantile(slackBeginningTW, 0.75),
-        np.nanquantile(slackBeginningTW, 0.25),
-        np.nanmean(slackBeginningTW),
-        (slackBeginningTW<0).sum()/len(stopsData),
-        np.nanmin(slackEndTW),
-        np.nanmean(slackEndTW),
-        np.nanquantile(slackEndTW, 0.75),
-        np.nanquantile(slackEndTW, 0.25),
-        np.nanmedian(slackEndTW),
-        len(zoneList),
-        np.max(deviations)/len(stopsData),
-        np.mean(deviations),
-        np.median(deviations),
-        np.quantile(deviations, 0.75),
-        np.std(deviations),
-    ]
-    return np.array(res).reshape(1, -1)
+def geoDistance(stopsData):
+    geoTT = {}
+    for _from in stopsData:
+        geoTT[_from] = {}
+        for _to in stopsData:
+           geoTT[_from][_to] = geopy.distance.distance((stopsData[_from]["lat"],stopsData[_from]["lng"]), (stopsData[_to]["lat"],stopsData[_to]["lng"])).km
+    return geoTT
+
 
 def saveRouteAsJson(route, routeID):
     submission = {}

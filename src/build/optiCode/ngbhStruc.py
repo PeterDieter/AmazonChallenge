@@ -1,29 +1,8 @@
 import random
 import numpy as np
 
-def randomSwap(sequence):
-    i, j = random.sample(range(1,len(sequence)), 2)
-    temp = sequence[i]
-    sequence[i] = sequence[j]
-    sequence[j] = temp
-    return sequence
-
-def twoOptChange(sequence):
-    i = random.randrange(1, len(sequence) - 1)
-    j = random.randrange(i + 2, max(i+16, len(sequence)))
-    # We reverse the order here
-    sequence[i:j] = sequence[j - 1:i - 1:-1]
-    return sequence
-
-def nodeInsertion(sequence):
-    aIndex, bIndex = random.sample(range(1,len(sequence)), 2)
-    temp = sequence[aIndex]
-    sequence.pop(aIndex)
-    sequence.insert(bIndex, temp)
-    return sequence
-
 def randomSwapInZone(sequence, zoneList):
-    randomZone = random.sample(range(len(zoneList)), 1)[0]
+    randomZone = random.sample(range(0,len(zoneList)), 1)[0]
     if zoneList[randomZone] > 1:
         cumsumzoneList = np.cumsum(zoneList)
         if randomZone == 0:
@@ -39,7 +18,7 @@ def randomSwapInZone(sequence, zoneList):
 
 def zoneSwap(sequence, zoneList):
     cumsumzoneList = np.cumsum(zoneList)
-    randomZone1, randomZone2 = random.sample(range(len(zoneList)), 2)
+    randomZone1, randomZone2 = random.sample(range(0, len(zoneList)-2), 2)
     if randomZone1 < randomZone2:
         randomZone1, randomZone2 = randomZone2, randomZone1
 
@@ -61,7 +40,7 @@ def zoneSwap(sequence, zoneList):
     return sequence, zoneList
 
 def inZoneTwoOptChange(sequence, zoneList):
-    randomZone = random.sample(range(len(zoneList)), 1)[0]
+    randomZone = random.sample(range(0, len(zoneList)), 1)[0]
     if zoneList[randomZone] > 1:
         cumsumzoneList = np.cumsum(zoneList)
         if randomZone == 0:
@@ -75,28 +54,8 @@ def inZoneTwoOptChange(sequence, zoneList):
     
     return sequence, zoneList
 
-def zoneTwoOptChange(sequence, zoneList):
-    cumsumzoneList = np.cumsum(zoneList)
-    randomZone1, randomZone2 = random.sample(range(len(zoneList)), 2)
-    if randomZone1 < randomZone2:
-        randomZone1, randomZone2 = randomZone2, randomZone1
-
-    if randomZone1 == 0:
-        previousZoneCum1 = 1
-    else:
-        previousZoneCum1 = cumsumzoneList[randomZone1-1] + 1
-    if randomZone2 == 0:
-        previousZoneCum2 = 1
-    else:
-        previousZoneCum2 = cumsumzoneList[randomZone2-1] + 1
-    
-    sequence[previousZoneCum1 + randomZone1:previousZoneCum2 + randomZone2] = sequence[previousZoneCum2 + randomZone2 - 1:previousZoneCum1 + randomZone1 - 1:-1]
-    zoneList[randomZone1:randomZone2] = zoneList[randomZone2 - 1:randomZone1 - 1:-1]
-
-    return sequence, zoneList
-
 def zoneNodeInsertion(sequence, zoneList):
-    randomZone = random.sample(range(len(zoneList)), 1)[0]
+    randomZone = random.sample(range(0, len(zoneList)), 1)[0]
     if zoneList[randomZone] > 1:
         cumsumzoneList = np.cumsum(zoneList)
         if randomZone == 0:
@@ -113,7 +72,8 @@ def zoneNodeInsertion(sequence, zoneList):
 
 def zoneInsertion(sequence, zoneList):
     cumsumzoneList = np.cumsum(zoneList)
-    randomZone1, randomZone2 = random.sample(range(len(zoneList)), 2)
+    randomZone1 = random.sample(range(0,len(zoneList)-2), 1)[0]
+    randomZone2 = randomZone1+1
     if randomZone1 < randomZone2:
         randomZone1, randomZone2 = randomZone2, randomZone1
 

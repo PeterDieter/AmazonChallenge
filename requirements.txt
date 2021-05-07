@@ -1,0 +1,4 @@
+yajl
+json
+numpy
+geopy
