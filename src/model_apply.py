@@ -1,4 +1,5 @@
 from os import path
+from build.main import predict_new_routes
 import sys, json, time
 
 # Get Directory
@@ -7,13 +8,21 @@ BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 # Read input data
 print('Reading Input Data')
 # Model Build output
-model_path=path.join(BASE_DIR, 'data/model_build_outputs/model.json')
-with open(model_path, newline='') as in_file:
-    model_build_out = json.load(in_file)
+# model_path=path.join(BASE_DIR, 'data/model_build_outputs/model.json')
+# with open(model_path, newline='') as in_file:
+#     model_build_out = json.load(in_file)
 # Prediction Routes (Model Apply input)
 prediction_routes_path = path.join(BASE_DIR, 'data/model_apply_inputs/new_route_data.json')
+prediction_ttMatrix_path = path.join(BASE_DIR, 'data/model_apply_inputs/new_travel_times.json')
+prediction_packageData_path = path.join(BASE_DIR, 'data/model_apply_inputs/new_package_data.json')
 with open(prediction_routes_path, newline='') as in_file:
-    prediction_routes = json.load(in_file)
+  prediction_routes = json.load(in_file)
+with open(prediction_ttMatrix_path, newline='') as in_file:
+  prediction_travelTimes = json.load(in_file)
+with open(prediction_packageData_path, newline='') as in_file:
+  prediction_packages = json.load(in_file)
+
+
 
 def sort_by_key(stops, sort_by):
     """
@@ -130,9 +139,10 @@ time.sleep(1)
 
 
 print('\nApplying answer with real model...')
-sort_by=model_build_out.get("sort_by")
-print('Sorting data by the key: {}'.format(sort_by))
-output=propose_all_routes(prediction_routes=prediction_routes, sort_by=sort_by)
+predicted_routes = predict_new_routes(prediction_routes, prediction_travelTimes)
+print(predicted_routes)
+#print('Sorting data by the key: {}'.format(sort_by))
+output=propose_all_routes(prediction_routes=predicted_routes, sort_by='position')
 print('Data sorted!')
 
 # Write output data

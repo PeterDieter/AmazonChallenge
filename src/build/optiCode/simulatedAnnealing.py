@@ -1,4 +1,3 @@
-import score
 import collections
 import random
 import time
@@ -7,7 +6,7 @@ import copy
 import multiprocessing
 from joblib import dump, load
 import numpy as np
-import optiCode.ngbhStruc as nbh
+import build.optiCode.ngbhStruc as nbh
 
 class SA:
     def __init__(self, startSequence, travelTimeMatrix, zoneList):
