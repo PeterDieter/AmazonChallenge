@@ -75,8 +75,8 @@ class SA:
     
     def multiprocessSA(self, noIterations):
         # multiprocessing stuff here
-        args = [noIterations] * (multiprocessing.cpu_count()-4)
-        p = multiprocessing.Pool(multiprocessing.cpu_count()-4)
+        args = [noIterations] * (multiprocessing.cpu_count()-1)
+        p = multiprocessing.Pool(multiprocessing.cpu_count()-1)
         result = p.map(self.iterate, args)
         res = min(result, key=lambda x: x[1])[0]
         return res

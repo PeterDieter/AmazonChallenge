@@ -1,7 +1,8 @@
 import numpy as np
 import os 
 import json
-import geopy.distance
+import mpu
+
 
 def findZoneClosestStop(stop, ttMatrix, route):
     cleanedList = list([key,value] for key, value in ttMatrix[stop].items() if key != stop and isinstance(route["stops"][key]["zone_id"], str))
@@ -74,7 +75,7 @@ def geoDistance(stopsData):
     for _from in stopsData:
         geoTT[_from] = {}
         for _to in stopsData:
-           geoTT[_from][_to] = geopy.distance.distance((stopsData[_from]["lat"],stopsData[_from]["lng"]), (stopsData[_to]["lat"],stopsData[_to]["lng"])).km
+           geoTT[_from][_to] = mpu.haversine_distance((stopsData[_from]["lat"],stopsData[_from]["lng"]), (stopsData[_to]["lat"],stopsData[_to]["lng"]))
     return geoTT
 
 

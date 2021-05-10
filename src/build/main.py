@@ -1,17 +1,18 @@
 import datetime
-import numpy as np
 import time
 import math
 import copy
-from build.optiCode.constructionHeuristic import backWardsNN
+from build.optiCode.constructionHeuristic import backWardsNN, nnZone
 from build.optiCode.simulatedAnnealing import SA
 from build.helpFunctions import centralityMeasure, zoneDistanceMatrix, geoDistance, findZoneClosestStop, zoneDistanceMatrixMinMin
 
 
 def predict_new_routes(routeData, travelTimes):
     prediction_routes = {}
+    counter = 0
     for key, value in routeData.items():
-        print(key)
+        print(counter, key)
+        counter += 1
         # Define route ID
         routeID = key
 
@@ -49,24 +50,22 @@ def predict_new_routes(routeData, travelTimes):
                                 "lng":   route["stops"][stop]["lng"],
                                 "ZoneID":  zone}   
 
-        # Derive sequences of the route 
+        # Derive sequences of the route     
         geott = geoDistance(stopsData)
         newtt = {}
         for key in origtt:
             newtt[key] = {}
             for key2 in origtt[key]:
-                newtt[key][key2] = 105*geott[key][key2] + 1*origtt[key][key2] 
+                newtt[key][key2] = 135*geott[key][key2] + 0*origtt[key][key2] 
 
         
-        ttZone = zoneDistanceMatrix(origtt, stopsData, zoneDict)
-        ttZoneminmin = zoneDistanceMatrixMinMin(origtt, stopsData, zoneDict)
+        #ttZone = zoneDistanceMatrix(origtt, stopsData, zoneDict)
+        #ttZoneminmin = zoneDistanceMatrixMinMin(origtt, stopsData, zoneDict)
         #ttZoneGeo = zoneDistanceMatrixMaxMax(geott, stopsData, zoneDict)
         ttSpecial = zoneDistanceMatrix(newtt, stopsData, zoneDict)
-        
-
         zoneRoute, zoneList = backWardsNN(ttSpecial,zoneDict, centralityMeasure(ttSpecial, zoneDict))
         instance = SA(zoneRoute, newtt, zoneList)
-        SAsequenceZone = instance.multiprocessSA((0, -0.0002, False))
+        SAsequenceZone = instance.multiprocessSA((6, -0.0002, False))
 
         prediction_routes[routeID] = {} 
         prediction_routes[routeID]['stops'] = {}

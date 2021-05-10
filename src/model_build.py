@@ -13,17 +13,17 @@ with open(training_routes_path, newline='') as in_file:
 
 # Solve for something hard
 print('Initializing Quark Reducer')
-time.sleep(1)
+time.sleep(0)
 print('Placing Nano Tubes In Gravitational Wavepool')
-time.sleep(1)
+time.sleep(0)
 print('Measuring Particle Deviations')
-time.sleep(1)
+time.sleep(0)
 print('Programming Artificial Noggins')
-time.sleep(1)
+time.sleep(0)
 print('Beaming in Complex Materials')
-time.sleep(1)
+time.sleep(0)
 print('Solving Model')
-time.sleep(1)
+time.sleep(0)
 print('Saving Solved Model State')
 output={
     'Model':'Hello from the model_build.py script!',
