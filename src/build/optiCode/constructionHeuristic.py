@@ -1,5 +1,6 @@
 import numpy as np
 from itertools import chain
+from build.helpFunctions import centralityMeasure
 
 def nnZone(ttZone, zoneDictname):
     currentZone = 'depot'
@@ -56,7 +57,9 @@ def backWardsNN(ttZone, zoneDictname, lastZone):
         routeList = zoneDictname[currentZone] + routeList
     return routeList, zoneList
 
-def forwardNN(ttZone, zoneDictname, firstZone):
+def forwardNN(ttZone, zoneDictname):
+    centrality = centralityMeasure(ttZone, zoneDictname, ['depot'])
+    firstZone = min(centrality, key=centrality.get)
     routeZone = ['depot', firstZone]
     routeList = zoneDictname['depot']
     currentZone = firstZone
@@ -64,8 +67,9 @@ def forwardNN(ttZone, zoneDictname, firstZone):
     routeList = zoneDictname['depot'] + zoneDictname[firstZone]
     for _i in range(1, len(zoneDictname)-1):
         zoneList.append(len(zoneDictname[currentZone])) 
-        cleanedList = list([key,value] for key, value in ttZone[currentZone].items() if  key != ttZone and key not in routeZone)
-        #cleanedList = list([key, ttZone[key][currentZone]] for key in ttZone.keys() if key != currentZone and key not in routeZone)
+        centrality = centralityMeasure(ttZone, zoneDictname,routeZone)
+        #cleanedList = list([key,value+0.05*centrality[key]] for key, value in ttZone[currentZone].items() if  key != ttZone and key not in routeZone)
+        cleanedList = list([key, ttZone[key][currentZone] + 0.05*centrality[key]] for key in ttZone.keys() if key != currentZone and key not in routeZone)
         currentZone = min(cleanedList, key=lambda x: x[1])[0]
         routeZone.append(currentZone) 
         routeList = routeList + zoneDictname[currentZone]

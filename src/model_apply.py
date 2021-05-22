@@ -122,22 +122,6 @@ def propose_all_routes(prediction_routes, sort_by):
     """
     return {key:{'proposed':sort_by_key(stops=value['stops'], sort_by=sort_by)} for key, value in prediction_routes.items()}
 
-# Apply faux algorithms to pass time
-time.sleep(0)
-print('Solving Dark Matter Waveforms')
-time.sleep(0)
-print('Quantum Computer is Overheating')
-time.sleep(0)
-print('Trying Alternate Measurement Cycles')
-time.sleep(0)
-print('Found a Great Solution!')
-time.sleep(0)
-print('Checking Validity')
-time.sleep(0)
-print('The Answer is 42!')
-time.sleep(0)
-
-
 print('\nApplying answer with real model...')
 predicted_routes = predict_new_routes(prediction_routes, prediction_travelTimes)
 #print('Sorting data by the key: {}'.format(sort_by))

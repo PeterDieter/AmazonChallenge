@@ -1,0 +1,62 @@
+Sending build context to Docker daemon  2.362GB
+Step 1/16 : ARG UBUNTU_RELEASE=20.04
+Step 2/16 : ARG SOURCE_DIR=/home/app/
+Step 3/16 : FROM ubuntu:$UBUNTU_RELEASE
+ ---> 7e0aa2d69a15
+Step 4/16 : ARG SOURCE_DIR
+ ---> Using cache
+ ---> e5075d22f18f
+Step 5/16 : ENV SOURCE_DIR $SOURCE_DIR
+ ---> Using cache
+ ---> 9ad01122c971
+Step 6/16 : ENV PATH $PATH:$SOURCE_DIR
+ ---> Using cache
+ ---> 5689364bbc43
+Step 7/16 : RUN mkdir -p $SOURCE_DIR
+ ---> Using cache
+ ---> 84464dbc135e
+Step 8/16 : WORKDIR $SOURCE_DIR
+ ---> Using cache
+ ---> 9c72804e26c5
+Step 9/16 : RUN groupadd --gid 1000 app  && useradd --uid 1000 --gid app --shell /bin/bash --create-home app  && apt-get update  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends     build-essential     python3     python3-pip     python3-dev  && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 76233ac72348
+Step 10/16 : RUN cd /usr/local/bin  && ln -s /usr/bin/python3 python  && ln -s /usr/bin/python3-config python-config
+ ---> Using cache
+ ---> 0ebfa971ecc9
+Step 11/16 : COPY --chown=app:app ./requirements.txt ./requirements.txt
+ ---> 84f7adac5725
+Step 12/16 : RUN pip3 install --upgrade pip && pip3 install -r requirements.txt
+ ---> Running in 18b3e00641eb
+Collecting pip
+  Downloading pip-21.1.1-py3-none-any.whl (1.5 MB)
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 20.0.2
+    Not uninstalling pip at /usr/lib/python3/dist-packages, outside environment /usr
+    Can't uninstall 'pip'. No files were found to uninstall.
+Successfully installed pip-21.1.1
+Collecting joblib==1.0.1
+  Downloading joblib-1.0.1-py3-none-any.whl (303 kB)
+Collecting mpu==0.23.1
+  Downloading mpu-0.23.1-py3-none-any.whl (69 kB)
+Collecting numpy==1.20.2
+  Downloading numpy-1.20.2-cp38-cp38-manylinux2010_x86_64.whl (15.4 MB)
+Installing collected packages: joblib, mpu, numpy
+Successfully installed joblib-1.0.1 mpu-0.23.1 numpy-1.20.2
+Removing intermediate container 18b3e00641eb
+ ---> be69ccab4081
+Step 13/16 : COPY --chown=app:app ./*.sh ./
+ ---> 0edfc5b31759
+Step 14/16 : COPY --chown=app:app ./src/ ./src/
+ ---> adef46735133
+Step 15/16 : USER app
+ ---> Running in 871b8becd0bc
+Removing intermediate container 871b8becd0bc
+ ---> 04ae06e5d2f4
+Step 16/16 : CMD ["/bin/bash"]
+ ---> Running in 51202de36a05
+Removing intermediate container 51202de36a05
+ ---> 918b728f69cb
+Successfully built 918b728f69cb
+Successfully tagged upb_amz:rc-cli

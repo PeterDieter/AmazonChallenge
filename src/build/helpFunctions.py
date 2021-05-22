@@ -10,27 +10,26 @@ def findZoneClosestStop(stop, ttMatrix, route):
     closestStop = cleanedList[0][0]
     return closestStop
 
-def centralityMeasure(zoneTT, zoneListName):
-    centrality, distToDepot, zoneList = [], [], []
+def centralityMeasure(zoneTT, zoneListName, neglectZones):
+    centrality, distToDepot, zoneList, TWList = [], [], [], []
     for fromZone in zoneListName:
-        if fromZone != 'depot':
+        if fromZone not in neglectZones:
             value = 0
             for toZone in zoneListName:
-                if toZone != 'depot':
+                if toZone not in neglectZones:
+                #if toZone != 'depot':
                     #value += zoneTT[fromZone][toZone]
                     value += zoneTT[toZone][fromZone]
             zoneList.append(fromZone)
             distToDepot.append(zoneTT['depot'][fromZone])
             centrality.append(value)
     
-    newList = -np.array(centrality) + np.array(distToDepot)
-    centrality = np.argsort(np.argsort(-np.array(centrality)))
-    distToDepot = np.argsort(np.argsort(np.array(distToDepot))) 
+    newList = -np.array(centrality) + np.array(distToDepot) 
 
-    combined = centrality + distToDepot
-
-    #centrality.sort(key = lambda x: x[1], reverse=True)
-    return zoneList[np.argmin(combined)]
+    centrality = {}
+    for idx, zone in enumerate(zoneList):
+        centrality[zone] = newList[idx]
+    return centrality
 
 def zoneDistanceMatrix(ttMatrix, stopsData, zoneListName):
     distMat = {}

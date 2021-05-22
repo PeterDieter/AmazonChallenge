@@ -1,0 +1,47 @@
+Sending build context to Docker daemon  2.362GB
+Step 1/16 : ARG UBUNTU_RELEASE=20.04
+Step 2/16 : ARG SOURCE_DIR=/home/app/
+Step 3/16 : FROM ubuntu:$UBUNTU_RELEASE
+ ---> 7e0aa2d69a15
+Step 4/16 : ARG SOURCE_DIR
+ ---> Using cache
+ ---> e5075d22f18f
+Step 5/16 : ENV SOURCE_DIR $SOURCE_DIR
+ ---> Using cache
+ ---> 9ad01122c971
+Step 6/16 : ENV PATH $PATH:$SOURCE_DIR
+ ---> Using cache
+ ---> 5689364bbc43
+Step 7/16 : RUN mkdir -p $SOURCE_DIR
+ ---> Using cache
+ ---> 84464dbc135e
+Step 8/16 : WORKDIR $SOURCE_DIR
+ ---> Using cache
+ ---> 9c72804e26c5
+Step 9/16 : RUN groupadd --gid 1000 app  && useradd --uid 1000 --gid app --shell /bin/bash --create-home app  && apt-get update  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends     build-essential     python3     python3-pip     python3-dev  && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 76233ac72348
+Step 10/16 : RUN cd /usr/local/bin  && ln -s /usr/bin/python3 python  && ln -s /usr/bin/python3-config python-config
+ ---> Using cache
+ ---> 0ebfa971ecc9
+Step 11/16 : COPY --chown=app:app ./requirements.txt ./requirements.txt
+ ---> Using cache
+ ---> f7c25db44e9b
+Step 12/16 : RUN pip3 install --upgrade pip && pip3 install -r requirements.txt
+ ---> Using cache
+ ---> 1b2e82ba6c70
+Step 13/16 : COPY --chown=app:app ./*.sh ./
+ ---> Using cache
+ ---> 9c17e4a6f0be
+Step 14/16 : COPY --chown=app:app ./src/ ./src/
+ ---> d45ae4b139f7
+Step 15/16 : USER app
+ ---> Running in 4ce0d4e2a13f
+Removing intermediate container 4ce0d4e2a13f
+ ---> c7b27031d484
+Step 16/16 : CMD ["/bin/bash"]
+ ---> Running in 790b4c7f7a93
+Removing intermediate container 790b4c7f7a93
+ ---> db7fde3c11c7
+Successfully built db7fde3c11c7
+Successfully tagged upb:rc-cli
