@@ -2,9 +2,9 @@ import datetime
 import time
 import math
 import copy
-from build.optiCode.constructionHeuristic import backWardsNN, nnZone, forwardNN
+from build.optiCode.constructionHeuristic import backWardsNN, forwardNN
 from build.optiCode.simulatedAnnealing import SA
-from build.helpFunctions import centralityMeasure, zoneDistanceMatrix, geoDistance, findZoneClosestStop, zoneDistanceMatrixMinMin
+from build.helpFunctions import zoneDistanceMatrix, geoDistance, findZoneClosestStop
 
 
 def predict_new_routes(routeData, travelTimes):
@@ -54,16 +54,16 @@ def predict_new_routes(routeData, travelTimes):
         for key in origtt:
             newtt[key] = {}
             for key2 in origtt[key]:
-                newtt[key][key2] = 140*geott[key][key2] + 1*origtt[key][key2] 
+                newtt[key][key2] = 180*geott[key][key2] + 1*origtt[key][key2] 
 
-        
-        #ttZone = zoneDistanceMatrix(origtt, stopsData, zoneDict)
-        #ttZoneminmin = zoneDistanceMatrixMinMin(origtt, stopsData, zoneDict)
-        #ttZoneGeo = zoneDistanceMatrixMaxMax(geott, stopsData, zoneDict)
+
+
+
         ttSpecial = zoneDistanceMatrix(newtt, stopsData, zoneDict)
+        
         zoneRoute, zoneList = forwardNN(ttSpecial, zoneDict)
         instance = SA(zoneRoute, newtt, zoneList)
-        SAsequenceZone = instance.multiprocessSA((1.5, -0.005))
+        SAsequenceZone = instance.multiprocessSA((1.3, -0.009))
 
         prediction_routes[routeID] = {} 
         prediction_routes[routeID]['stops'] = {}

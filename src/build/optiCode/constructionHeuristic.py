@@ -24,7 +24,10 @@ def find_in_list_of_list(mylist, char):
             return (mylist.index(sub_list), sub_list.index(char))
     raise ValueError("'{char}' is not in list".format(char = char))
 
-def backWardsNN(ttZone, zoneDictname, lastZone):
+
+def backWardsNN(ttZone, zoneDictname):
+    centrality, rank = centralityMeasure(ttZone, zoneDictname, ['depot'])
+    lastZone = min(centrality, key=centrality.get)
     currentZone = lastZone
     routeZone = [lastZone]
     zoneList = []
@@ -37,7 +40,8 @@ def backWardsNN(ttZone, zoneDictname, lastZone):
         if _i < (len(zoneDictname)-1):
             for _j in zoneDictname:
                 if _j not in routeZone and _j != 'depot':
-                    cleanedList = list([key,value] for key, value in ttZone[_j].items() if key != _j) #and key not in newList)
+                    centrality, rank = centralityMeasure(ttZone, zoneDictname,routeZone)
+                    cleanedList = list([key,value] for key, value in ttZone[_j].items() if key != _j and key !='depot') #and key not in newList)
                     cleanedList.sort(key = lambda x: x[1])
                     idx, two = find_in_list_of_list(cleanedList, currentZone)
                     masterList.append([_j, idx])
@@ -45,8 +49,8 @@ def backWardsNN(ttZone, zoneDictname, lastZone):
             ls = [i for i, x in enumerate(masterList) if x[1] == min(masterList, key=lambda x: x[1])[1]]   
             currentLowestDist = 100000000000000
             for _k in ls:
-                if ttZone[masterList[_k][0]][currentZone] < currentLowestDist:
-                    currentLowestDist = ttZone[masterList[_k][0]][currentZone]
+                if ttZone[masterList[_k][0]][currentZone] + 0.05*centrality[masterList[_k][0]] < currentLowestDist:
+                    currentLowestDist = ttZone[masterList[_k][0]][currentZone] + 0.05*centrality[masterList[_k][0]]
                     nextZone = masterList[_k][0]
             currentZone = nextZone
 
@@ -57,8 +61,9 @@ def backWardsNN(ttZone, zoneDictname, lastZone):
         routeList = zoneDictname[currentZone] + routeList
     return routeList, zoneList
 
+
 def forwardNN(ttZone, zoneDictname):
-    centrality = centralityMeasure(ttZone, zoneDictname, ['depot'])
+    centrality, rank = centralityMeasure(ttZone, zoneDictname, ['depot'], start=True)
     firstZone = min(centrality, key=centrality.get)
     routeZone = ['depot', firstZone]
     routeList = zoneDictname['depot']
@@ -67,13 +72,13 @@ def forwardNN(ttZone, zoneDictname):
     routeList = zoneDictname['depot'] + zoneDictname[firstZone]
     for _i in range(1, len(zoneDictname)-1):
         zoneList.append(len(zoneDictname[currentZone])) 
-        centrality = centralityMeasure(ttZone, zoneDictname,routeZone)
+        centrality, rank = centralityMeasure(ttZone, zoneDictname,routeZone)
         #cleanedList = list([key,value+0.05*centrality[key]] for key, value in ttZone[currentZone].items() if  key != ttZone and key not in routeZone)
-        cleanedList = list([key, ttZone[key][currentZone] + 0.05*centrality[key]] for key in ttZone.keys() if key != currentZone and key not in routeZone)
+        cleanedList = list([key, ttZone[currentZone][key] + 0.95*centrality[key]] for key in ttZone.keys() if key != currentZone and key not in routeZone)
         currentZone = min(cleanedList, key=lambda x: x[1])[0]
         routeZone.append(currentZone) 
         routeList = routeList + zoneDictname[currentZone]
     zoneList.append(len(zoneDictname[currentZone]))
-    routeList[1:len(routeList)] = routeList[1:len(routeList)][::-1]
-    zoneList = zoneList[::-1]
+    #routeList[1:len(routeList)] = routeList[1:len(routeList)][::-1]
+    #zoneList = zoneList[::-1]
     return routeList, zoneList

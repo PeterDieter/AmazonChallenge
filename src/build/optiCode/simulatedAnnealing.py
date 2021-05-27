@@ -1,11 +1,7 @@
-import collections
 import random
 import time
 import math
-import copy
 import multiprocessing
-from joblib import dump, load
-import numpy as np
 import build.optiCode.ngbhStruc as nbh
 
 class SA:
@@ -32,7 +28,6 @@ class SA:
         zoneList = self.zoneList
         temp = 1 # Set starting temperature
         bestObjValue = self.getObjectiveValue(seq)
-        #tabuList = collections.deque([0])
         bestSeq = seq.copy()
         tempCounter = 0
         t0 = time.time()
@@ -40,12 +35,9 @@ class SA:
         while time.time() - t0 < maxTime:
             temp = math.exp(temperature*tempCounter)
             oldObjVal = self.getObjectiveValue(seq)
-            temporarySeq, temporaryZoneList = random.choices(self.neighborhoods, weights=[0.4, 0.4, 0.4])[0](seq.copy(), zoneList.copy())
+            temporarySeq, temporaryZoneList = random.choices(self.neighborhoods, weights=[0.2, 0.8, 2.4])[0](seq.copy(), zoneList.copy())
             newObjVal = self.getObjectiveValue(temporarySeq)
-            #if newObjVal not in tabuList:# and lateCounter < oldlateCounter and earlyCounter < oldearlyCounter:
             if newObjVal <= oldObjVal: # Always accept better solutions
-                #tabuList.appendleft(newObjVal)
-                #tabuList.pop()
                 seq = temporarySeq.copy()
                 zoneList = temporaryZoneList.copy()
                 # Now we store the best solution
@@ -54,8 +46,6 @@ class SA:
                     bestSeq = temporarySeq.copy()
             else: # Sometimes accept worse solutions
                 if random.random() < temp:
-                    #tabuList.appendleft(newObjVal)
-                    #tabuList.pop()
                     seq = temporarySeq.copy()
                     zoneList = temporaryZoneList.copy()
             tempCounter += 1
@@ -63,8 +53,8 @@ class SA:
     
     def multiprocessSA(self, noIterations):
         # multiprocessing stuff here
-        args = [noIterations] * (multiprocessing.cpu_count()-5)
-        p = multiprocessing.Pool(multiprocessing.cpu_count()-5)
+        args = [noIterations] * (5)
+        p = multiprocessing.Pool(5)
         result = p.map(self.iterate, args)
         res = min(result, key=lambda x: x[1])[0]
         return res
