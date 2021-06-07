@@ -1,8 +1,4 @@
-import datetime
-import time
-import math
-import copy
-from build.optiCode.constructionHeuristic import backWardsNN, forwardNN
+from build.optiCode.constructionHeuristic import forwardNN
 from build.optiCode.simulatedAnnealing import SA
 from build.helpFunctions import zoneDistanceMatrix, geoDistance, findZoneClosestStop
 
@@ -61,9 +57,9 @@ def predict_new_routes(routeData, travelTimes):
 
         ttSpecial = zoneDistanceMatrix(newtt, stopsData, zoneDict)
         
-        zoneRoute, zoneList = forwardNN(ttSpecial, zoneDict)
+        zoneRoute, zoneList = forwardNN(ttSpecial, zoneDict, newtt, stopsData)
         instance = SA(zoneRoute, newtt, zoneList)
-        SAsequenceZone = instance.multiprocessSA((1.3, -0.009))
+        SAsequenceZone = instance.multiprocessSA((2.5, -0.009))
 
         prediction_routes[routeID] = {} 
         prediction_routes[routeID]['stops'] = {}

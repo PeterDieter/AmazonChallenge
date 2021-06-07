@@ -1,6 +1,4 @@
 import numpy as np
-import os 
-import json
 import mpu
 
 
@@ -10,8 +8,9 @@ def findZoneClosestStop(stop, ttMatrix, route):
     closestStop = cleanedList[0][0]
     return closestStop
 
+
 def centralityMeasure(zoneTT, zoneListName, neglectZones, start=False):
-    centrality, distToDepot, zoneList, TWList = [], [], [], []
+    centrality, distToDepot, zoneList = [], [], []
     for fromZone in zoneListName:
         if fromZone not in neglectZones:
             value = 0
@@ -27,25 +26,15 @@ def centralityMeasure(zoneTT, zoneListName, neglectZones, start=False):
             centrality.append(value/counter)
     
     if start:
-        newList = -np.array(centrality) + 0.05*np.array(distToDepot)
+        newList = -np.array(centrality) + 0.2*np.array(distToDepot)
     else:
         newList = -np.array(centrality) - 0.05*np.array(distToDepot)
 
-    centrality = np.argsort(np.argsort(-np.array(centrality)))
-    distToDepot = np.argsort(np.argsort(np.array(distToDepot))) 
-
-    
-
-    combined = centrality + distToDepot 
-    ranking = np.argsort(np.argsort(np.array(combined))) 
     centrality = {}
-    rank = {}
     for idx, zone in enumerate(zoneList):
-        rank[zone] = ranking[idx]
         centrality[zone] = newList[idx]
-
     #centrality.sort(key = lambda x: x[1], reverse=True)
-    return centrality, rank
+    return centrality
 
 def zoneDistanceMatrix(ttMatrix, stopsData, zoneListName):
     distMat = {}
