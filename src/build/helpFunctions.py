@@ -2,13 +2,6 @@ import numpy as np
 import mpu
 
 
-def findZoneClosestStop(stop, ttMatrix, route):
-    cleanedList = list([key,value] for key, value in ttMatrix[stop].items() if key != stop and isinstance(route["stops"][key]["zone_id"], str))
-    cleanedList.sort(key=lambda x: x[1])
-    closestStop = cleanedList[0][0]
-    return closestStop
-
-
 def centralityMeasure(zoneTT, zoneListName, neglectZones, start=False):
     centrality, distToDepot, zoneList = [], [], []
     for fromZone in zoneListName:
@@ -28,7 +21,7 @@ def centralityMeasure(zoneTT, zoneListName, neglectZones, start=False):
     if start:
         newList = -np.array(centrality) + 0.2*np.array(distToDepot)
     else:
-        newList = -np.array(centrality) - 0.05*np.array(distToDepot)
+        newList = -np.array(centrality) - 0.06*np.array(distToDepot)
 
     centrality = {}
     for idx, zone in enumerate(zoneList):
@@ -55,8 +48,6 @@ def zoneDistanceMatrix(ttMatrix, stopsData, zoneListName):
                 distMat[_fromZone][_toZone] = np.mean(np.array(distarray)) #totalDist/(len(stopsFromZone)*len(stopsToZone))
             
     return distMat
-
-
 
 def geoDistance(stopsData):
     geoTT = {}

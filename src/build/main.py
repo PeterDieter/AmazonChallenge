@@ -1,6 +1,6 @@
 from build.optiCode.constructionHeuristic import forwardNN
 from build.optiCode.simulatedAnnealing import SA
-from build.helpFunctions import zoneDistanceMatrix, geoDistance, findZoneClosestStop
+from build.helpFunctions import zoneDistanceMatrix, geoDistance
 
 
 def predict_new_routes(routeData, travelTimes):
@@ -29,8 +29,7 @@ def predict_new_routes(routeData, travelTimes):
                 if isinstance(route["stops"][stop]["zone_id"], str):
                     zone = route["stops"][stop]["zone_id"]
                 else:
-                    closestNeighbor = findZoneClosestStop(stop, origtt, route)
-                    zone = route["stops"][closestNeighbor]["zone_id"]
+                    zone = stop
 
             if zone not in zoneDict: 
                 zoneDict[zone] = [stop]
@@ -53,13 +52,10 @@ def predict_new_routes(routeData, travelTimes):
                 newtt[key][key2] = 180*geott[key][key2] + 1*origtt[key][key2] 
 
 
-
-
         ttSpecial = zoneDistanceMatrix(newtt, stopsData, zoneDict)
-        
         zoneRoute, zoneList = forwardNN(ttSpecial, zoneDict, newtt, stopsData)
         instance = SA(zoneRoute, newtt, zoneList)
-        SAsequenceZone = instance.multiprocessSA((2.5, -0.009))
+        SAsequenceZone = instance.multiprocessSA((3, -0.001))
 
         prediction_routes[routeID] = {} 
         prediction_routes[routeID]['stops'] = {}

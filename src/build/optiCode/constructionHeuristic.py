@@ -7,18 +7,18 @@ def forwardNN(ttZone, zoneDictname, ttNormal, stopsData):
     currentZone = firstZone
     zoneList = []
     routeList = zoneDictname['depot']
-    for i in range(len(zoneDictname[currentZone])):
+    for _i in range(len(zoneDictname[currentZone])):
         currentStop = routeList[-1]
         cleanedList = list([key,ttNormal[currentStop][key]] for key in ttNormal.keys()if  key != currentStop and key not in routeList and stopsData[key]['ZoneID'] == currentZone)
         nextStop = min(cleanedList, key=lambda x: x[1])[0]
         routeList.append(nextStop) 
-    for _i in range(1, len(zoneDictname)-1):
+    for _j in range(1, len(zoneDictname)-1):
         zoneList.append(len(zoneDictname[currentZone])) 
         centrality = centralityMeasure(ttZone, zoneDictname, routeZone, start=False)
         cleanedList = list([key, ttZone[currentZone][key] + 1*centrality[key]] for key in ttZone.keys() if key != currentZone and key not in routeZone)
         currentZone = min(cleanedList, key=lambda x: x[1])[0]
         routeZone.append(currentZone) 
-        for i in range(len(zoneDictname[currentZone])):
+        for _k in range(len(zoneDictname[currentZone])):
             currentStop = routeList[-1]
             cleanedList = list([key,ttNormal[currentStop][key]] for key in ttNormal.keys()if  key != currentStop and key not in routeList and stopsData[key]['ZoneID'] == currentZone)
             nextStop = min(cleanedList, key=lambda x: x[1])[0]

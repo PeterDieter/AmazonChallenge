@@ -1,0 +1,60 @@
+Starting the Docker daemon... done
+Loading the Image... done
+
+============================
+Running the Image [upb_amz] (model_build):
+
+Reading Input Data
+Initializing Quark Reducer
+Placing Nano Tubes In Gravitational Wavepool
+Measuring Particle Deviations
+Programming Artificial Noggins
+Beaming in Complex Materials
+Solving Model
+Saving Solved Model State
+Success: The '/home/app/data/model_build_outputs/model.json' file has been saved
+
+Time Elapsed: 0h:0m:2s
+
+============================
+Running the Image [upb_amz] (model_apply):
+
+Reading Input Data
+
+Applying answer with real model...
+13
+0 RouteID_15baae2d-bf07-4967-956a-173d4036613f
+1 RouteID_3f166f0e-fd2e-47ab-96a0-6cbc99cc6eef
+2 RouteID_5486294a-503f-4346-b8a9-862e988cbe7c
+3 RouteID_693060a6-88bb-4324-9e9c-925d5240263c
+4 RouteID_7f5d87f0-c39f-434f-bf3f-b159ef321909
+5 RouteID_9475872b-287f-4c2c-8e29-887766a4e090
+6 RouteID_a8f0009d-e50a-49c9-84d3-f9885ad14a54
+7 RouteID_bcc07fea-86d2-41e4-9a58-cfc78956dcc7
+8 RouteID_d1a8c3dd-fa67-455c-a68d-af2fd6aa5d91
+9 RouteID_e6687a05-2453-4edc-b86c-7558ab6d93f6
+10 RouteID_2b8df66d-fcd4-438e-931c-3b84b36a5c6b
+11 RouteID_f3261fad-5f97-44f6-ae7f-cf169f5d6452
+12 RouteID_fffd257c-3041-4736-be7a-5efea8af1173
+Data sorted!
+Success: The '/home/app/data/model_apply_outputs/proposed_sequences.json' file has been saved
+Done!
+
+Time Elapsed: 0h:0m:36s
+
+Loading the Image... done
+
+============================
+Running the Scoring Image [rc-scoring]:
+
+Beginning Score Evaluation... done
+
+submission_score: 0.05371182018954768
+
+First five route_scores:
+RouteID_15baae2d-bf07-4967-956a-173d4036613f :  0.05934224235903642
+RouteID_3f166f0e-fd2e-47ab-96a0-6cbc99cc6eef :  0.02934319795424293
+RouteID_5486294a-503f-4346-b8a9-862e988cbe7c :  0.07875383678824191
+RouteID_693060a6-88bb-4324-9e9c-925d5240263c :  0.12121122372514803
+RouteID_7f5d87f0-c39f-434f-bf3f-b159ef321909 :  0.03806801951368243
+...
