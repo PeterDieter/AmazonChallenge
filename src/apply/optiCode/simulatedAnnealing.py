@@ -2,7 +2,7 @@ import random
 import time
 import math
 import multiprocessing
-import build.optiCode.ngbhStruc as nbh
+import apply.optiCode.ngbhStruc as nbh
 
 class SA:
     def __init__(self, startSequence, travelTimeMatrix, zoneList):

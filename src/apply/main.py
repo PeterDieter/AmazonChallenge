@@ -1,55 +1,66 @@
-import os, json, time
-# Import local score file
-import score
+from apply.optiCode.constructionHeuristic import forwardNN
+from apply.optiCode.simulatedAnnealing import SA
+from apply.helpFunctions import zoneDistanceMatrix, geoDistance
 
-# Read JSON data from the given filepath
-def read_json_data(filepath):
-    try:
-        with open(filepath, newline = '') as in_file:
-            return json.load(in_file)
-    except FileNotFoundError:
-        print("The '{}' file is missing!".format(filepath))
-    except json.JSONDecodeError:
-        print("Error in the '{}' JSON data!".format(filepath))
-    except Exception as e:
-        print("Error when reading the '{}' file!".format(filepath))
-        print(e)
-    return None
 
-if __name__ == '__main__':
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+def predict_new_routes(routeData, travelTimes):
+    prediction_routes = {}
+    counter = 0
+    for key, value in routeData.items():
+        print(counter, key)
+        counter += 1
+        # Define route ID
+        routeID = key
 
-    # Read JSON time inputs
-    model_build_time = read_json_data(os.path.join(BASE_DIR,'data/model_score_timings/model_build_time.json'))
-    model_apply_time = read_json_data(os.path.join(BASE_DIR,'data/model_score_timings/model_apply_time.json'))
+        # Access the data for the ID
+        origtt = travelTimes[routeID]
+        route = routeData[routeID]
+        stops = route["stops"]
 
-    print('Beginning Score Evaluation... ', end='')
-    output = score.evaluate(
-        actual_routes_json = os.path.join(BASE_DIR,'data/model_score_inputs/new_actual_sequences.json'),
-        invalid_scores_json = os.path.join(BASE_DIR,'data/model_score_inputs/new_invalid_sequence_scores.json'),
-        submission_json = os.path.join(BASE_DIR,'data/model_apply_outputs/proposed_sequences.json'),
-        cost_matrices_json = os.path.join(BASE_DIR,'data/model_apply_inputs/new_travel_times.json'),
-        model_apply_time = model_apply_time.get("time"),
-        model_build_time = model_build_time.get("time")
-    )
-    print('done')
+        # Summarize data
+        stopsData = {}
+        zoneDict = {}
+        for stop in stops:
+            if route["stops"][stop]['type'] == 'Station':
+                zone = 'depot'
+                StopType = 'depot'
+            else:
+                StopType = 'dropoff'
+                if isinstance(route["stops"][stop]["zone_id"], str):
+                    zone = route["stops"][stop]["zone_id"]
+                else:
+                    zone = stop
 
-    # Write Outputs to File
-    output_path = os.path.join(BASE_DIR,'data/model_score_outputs/scores.json')
-    with open(output_path, 'w') as out_file:
-        json.dump(output, out_file)
+            if zone not in zoneDict: 
+                zoneDict[zone] = [stop]
+            else:
+                zoneDict[zone].append(stop)
 
-    # Print Pretty Output
-    print("\nsubmission_score:", output.get('submission_score'))
-    rt_show=output.get('route_scores')
-    extra_str=None
-    if len(rt_show.keys())>5:
-        rt_show=dict(list(rt_show.items())[:5])
-        extra_str="..."
-        print("\nFirst five route_scores:")
-    else:
-        print("\nAll route_scores:")
-    for rt_key, rt_score in rt_show.items():
-        print(rt_key,": ",rt_score)
-    if extra_str:
-        print(extra_str)
+            # Now we add all relevant information to a dict
+            stopsData[stop] = { "StopName": stop,
+                                "StopType": StopType,
+                                "lat":   route["stops"][stop]["lat"],
+                                "lng":   route["stops"][stop]["lng"],
+                                "ZoneID":  zone}   
+
+        # Derive sequences of the route     
+        geott = geoDistance(stopsData)
+        newtt = {}
+        for key in origtt:
+            newtt[key] = {}
+            for key2 in origtt[key]:
+                newtt[key][key2] = 180*geott[key][key2] + 1*origtt[key][key2] 
+
+
+        ttSpecial = zoneDistanceMatrix(newtt, stopsData, zoneDict)
+        zoneRoute, zoneList = forwardNN(ttSpecial, zoneDict, newtt, stopsData)
+        instance = SA(zoneRoute, newtt, zoneList)
+        SAsequenceZone = instance.multiprocessSA((3, -0.001))
+
+        prediction_routes[routeID] = {} 
+        prediction_routes[routeID]['stops'] = {}
+        for idx, stop in enumerate(SAsequenceZone):
+            stopsData[stop]['position'] = idx
+            prediction_routes[routeID]['stops'][stop] = stopsData[stop]
+        
+    return prediction_routes

@@ -1,4 +1,4 @@
-from build.helpFunctions import centralityMeasure
+from apply.helpFunctions import centralityMeasure
 
 def forwardNN(ttZone, zoneDictname, ttNormal, stopsData):
     centrality = centralityMeasure(ttZone, zoneDictname, ["depot"], start=True)

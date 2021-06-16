@@ -1,5 +1,5 @@
 from os import path
-from build.main import predict_new_routes
+from apply.main import predict_new_routes
 import sys, json, time
 
 # Get Directory
